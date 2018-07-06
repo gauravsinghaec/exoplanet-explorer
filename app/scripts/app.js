@@ -61,12 +61,16 @@ Hint: you'll probably still need to use .map.
      */
     getJSON('../data/earth-like-results.json')
     .then(function(response) {
-
       addSearchHeader(response.query);
-
-      response.results.map(function(url) {
-        getJSON(url).then(createPlanetThumb);
-      });
+      console.log(response.results);
+      return Promise.all(response.results.map(function(url) {
+        return getJSON(url);
+      }));
+    })
+    .then(function(planets){
+        planets.forEach(function(planet){
+          createPlanetThumb(planet);
+        });
     });
   });
 })(document);
