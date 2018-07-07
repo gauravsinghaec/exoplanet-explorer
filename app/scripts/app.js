@@ -31,6 +31,7 @@ proper order even if all the requests haven't finished.
       pT[d] = data[d];
     }
     home.appendChild(pT);
+    console.log('rendered: ' + data.pl_name);
   }
 
   /**
@@ -48,7 +49,9 @@ proper order even if all the requests haven't finished.
    * @return {Promise}    - A promise that passes the parsed JSON response.
    */
   function getJSON(url) {
+    console.log('sent: ' + url);
     return get(url).then(function(response) {
+      console.log('received: ' + url);
       return response.json();
     });
   }
@@ -58,6 +61,20 @@ proper order even if all the requests haven't finished.
     /*
     Your code goes here!
      */
-    // getJSON('../data/earth-like-results.json')
+    getJSON('../data/earth-like-results.json')
+    .then(function(response){
+      console.log(response);
+      var promiseArray = response.results.map(getJSON);
+      console.log(promiseArray);
+      var sequence = Promise.resolve();
+      promiseArray.forEach(function(promise){
+        sequence = sequence.then(function(){
+          return promise;
+        }).then(createPlanetThumb);
+      });
+    })
+    .catch(function(error){
+      console.log(error);
+    });
   });
 })(document);
